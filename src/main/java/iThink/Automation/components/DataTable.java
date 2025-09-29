@@ -51,6 +51,33 @@ public class DataTable {
 	@FindBy(xpath = "//table/tbody/tr/td[@class='order_id data-table-header']/div/div/div")
 	private List<WebElement> orderIDText;
 	
+	@FindBy(xpath = "//div[@class='datepicker-outer']")
+	private WebElement pageDateFilter;
+	
+	@FindBy(xpath = "//div/p")
+	private List<WebElement> dateFilterOptions;
+	
+	@FindBy(xpath = "//span[@class='filters nest-hub-max-inner-filter']")
+	private WebElement filtersButton;
+	
+	@FindBy(xpath = "//div/p[@class='header']")
+	private WebElement allFiltersHeader;
+	
+	@FindBy(xpath = "//div[@class='w-[168px] p-2 lists hover:cursor-pointer']")
+	private List<WebElement> filtersList;
+	
+	@FindBy(xpath = "//div/span[@class='right-filter-header pl-[14px]']")
+	private List<WebElement> allFiltersHeaders;
+	
+	@FindBy(xpath = "//div/div/img[@alt='Search']")
+	private List<WebElement> allSearchIconsInFilters;	//captures all search icons in filter modalbox
+	
+	@FindBy(xpath = "//div[@id='order_id']/div/*")
+	private List<WebElement> orderIDFilterField;	//captures both search icon and inputbox in filter modalbox
+	
+	@FindBy(xpath = "//div[@id='order_id']/div/input")
+	private WebElement orderIDFilter;
+	
 	/** Search the Single AWB in Universal Search
 	 * 
 	 * @param AWB Number
@@ -114,6 +141,7 @@ public class DataTable {
 		return tableEntryRow.size();
 	}
 	
+	/** Checks the is AWB displayed with logo**/
 	public boolean isAwbDisplayedWithLogo() {
 		wait.waitForAllElementsVisibility(By.xpath("//table/tbody/tr/td[@class='awb_no_logistics data-table-header']/div/div"));
 		WebElement logisticLogo = awbNoWithLogo.getFirst();
@@ -123,7 +151,7 @@ public class DataTable {
 	
 	public String getAwbFromDatatable() {
 		wait.waitForVisibility(awbNoWithLogo.getFirst());
-		return awbNoWithLogo.getFirst().getText().trim();
+		return awbNoWithLogo.getLast().getText().trim();
 //		WebElement awbNumber = awbNoWithLogo.getLast();
 //		List<String> awbs = new ArrayList<>();
 //		for(WebElement awb : awbNumber) {
@@ -146,6 +174,108 @@ public class DataTable {
 		}
 	}
 	
-	//pending to add to check is data displayed or not after loading the page.
+	//pending to add to checkpoint for data displayed or not after loading the page.
+	
+	/*** Click on Date Filter displayed on Page ***/
+	public void clickPageDateFilter() {
+		wait.waitForVisibility(pageDateFilter);
+		comm.clickButton(pageDateFilter);
+	}
+	
+	/*** Get List of Date Options 
+	 * @return  List of All Date Options in Date Filter displayed on page**/
+	public List<String> getDateOptions() {
+		wait.waitForAllElementsVisibility(By.xpath("//div/p"));	//this method throws stale element exeception
+		List<String> dateOptions = new ArrayList<>();
+		try {
+			for(WebElement option : dateFilterOptions) {
+				String text = option.getText().trim();
+				dateOptions.add(text);
+			}
+		} catch(Exception e) {
+			throw new RuntimeException(e);
+		}
+		return dateOptions;
+	}
+	
+	/*** Get the Selected Date Option in Date Filter**/
+	public String getSelectedDateOption() {
+		wait.waitForAllElementsVisibility(dateFilterOptions);
+		for(WebElement option : dateFilterOptions) {
+			String selectedOption = option.getAttribute("class");
+			if(selectedOption.contains("m-0 text-sm text-black dark:text-white")) {
+				return option.getText().trim();
+			}
+		} return "Any Date is not selected.";
+	}
+	
+	public boolean isFilterButtonDisplayed() {
+		wait.waitForVisibility(filtersButton);
+		return comm.isElementDisplayed(filtersButton);
+	}
+	
+	public void clickOnFiltersButton() {
+		try {
+			if(isFilterButtonDisplayed()) {
+				comm.clickButton(filtersButton);
+			}
+			else {
+				wait.waitForVisibility(By.xpath("//span[@class='filters nest-hub-max-inner-filter']")).click();
+			}
+		} catch(Exception e) {
+			throw new RuntimeException("Filter button is not displayed.", e);
+		}
+	}
+	
+	/** Check Filters Modalbox is opened or not**/
+	public boolean isFiltersModalboxOpens() {
+		wait.waitForVisibility(By.xpath("//div/p[@class='header']"));
+		return comm.isElementDisplayed(allFiltersHeader);
+	}
+	
+	/** Get the list of Filters List displayed at Left side in Order ID modalbox.
+	 * In this method subfilter names are not captured.
+	 * eg. Customer Details (captured)
+	 *  Customer Name, Email, Mobile. (ommitted)
+	 * @return List of String of Filters displayed at left side.
+	 */
+	public List<String> getListOfFilters() {
+		wait.waitForAllElementsVisibility(By.xpath("//div[@class='w-[168px] p-2 lists hover:cursor-pointer']"));
+		List<String> filterList = new ArrayList<>();
+		for(WebElement filter : filtersList) {
+			String name = comm.getElementText(filter);
+			filterList.add(name);
+		}
+		return filterList;
+	}
+	
+	/** This Method return all the Filters which headers are displayed.
+	 * This method omitts Main Filter header, if sub filter is present.
+	 * eg. Customer Details (ommitted)
+	 *  - Customer Name, Customer Email, Customer Mobile No. (captured).
+	 * @return List of String of filters displayed at right side.
+	 */
+	public List<String> getFiltersHeaders() {
+		wait.waitForVisibility(By.xpath("//div/span[@class='right-filter-header pl-[14px]']"));
+		List<String> filterHeaders = new ArrayList<>();
+		for(WebElement filter : allFiltersHeaders) {
+			String header = comm.getElementText(filter);
+			filterHeaders.add(header);
+		}
+		return filterHeaders;
+	}
+	
+	public void setOrderIDFilter(String orderID) {
+		
+	}
+	
+	public boolean isAllSearchIconsAreDisplayed() {
+		wait.waitForVisibility(By.xpath("//div/div/img[@alt='Search']"));
+		for(WebElement icon : allSearchIconsInFilters) {
+			return icon.isDisplayed();
+		}
+		return false;
+	}
+	
 	
 }

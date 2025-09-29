@@ -55,8 +55,60 @@ public class AllTab {
 		throw new IllegalStateException("Unexpected state: Neither rows found nor 'No Record Found' displayed.");
 	}
 	
+	public List<String> getDateOptionsOnPage() {
+		datatable.clickPageDateFilter();
+		logger.info("getting all options of Date filter/");
+		wait.sleep(3);
+		return datatable.getDateOptions();
+	}
 	
+	public String getSelectedDateOnPage() {
+		datatable.clickPageDateFilter();
+		return datatable.getSelectedDateOption();
+	}
 	
+	public boolean isDefaultSelectedDateIsLast30Days() {
+		datatable.clickPageDateFilter();
+		return getSelectedDateOnPage().equalsIgnoreCase("Last 30 Days");
+		
+	}
 	
+	/** Gets First AWB from Datatable**/
+	public String getFirstAWBFromDatatable() {
+		return datatable.getAwbFromDatatable();
+	}
+	
+	public void clickOnFilterButton() {
+		datatable.clickOnFiltersButton();
+		if(datatable.isFiltersModalboxOpens()) {
+			logger.info("Filter Modal box opens");
+		} else {
+			logger.warn("Filter Modalbox failed to open.");
+		}
+	}
+	
+	public List<String> getAllTabFiltersList() {
+		return datatable.getListOfFilters();
+	}
+	
+	public List<String> getCurrentListOfOrderIDs() {
+		return datatable.getOrderIDList();
+	}
+	
+	public String getThirdOrderIDFromDatable() {
+		try {
+			if(getCurrentListOfOrderIDs().size() > 4 && (!datatable.isNoRecordDisplayed())) {
+				return getCurrentListOfOrderIDs().get(2);
+			} else {
+				return getCurrentListOfOrderIDs().getFirst();
+			}
+		} catch (Exception e) {
+			throw new RuntimeException("Cannot get the Order ID", e);
+		}
+	}
+	
+	public List<String> getAllTabAllFilters() {
+		return datatable.getFiltersHeaders();
+	}
 
 }
