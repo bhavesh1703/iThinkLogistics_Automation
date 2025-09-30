@@ -69,6 +69,12 @@ public class DataTable {
 	@FindBy(xpath = "//div/span[@class='right-filter-header pl-[14px]']")
 	private List<WebElement> allFiltersHeaders;
 	
+	@FindBy(xpath="//div[@class='flex gap-2 filter-modal-btn-div']/button[1]")
+	private WebElement applyButton;
+	
+	@FindBy(xpath = "//div[@class='flex gap-2 filter-modal-btn-div']/button[2]")
+	private WebElement closeButton;
+	
 	@FindBy(xpath = "//div/div/img[@alt='Search']")
 	private List<WebElement> allSearchIconsInFilters;	//captures all search icons in filter modalbox
 	
@@ -266,7 +272,7 @@ public class DataTable {
 	}
 	
 	public void setOrderIDFilter(String orderID) {
-		
+		comm.setInput(orderIDFilter, orderID);
 	}
 	
 	public boolean isAllSearchIconsAreDisplayed() {
@@ -275,6 +281,23 @@ public class DataTable {
 			return icon.isDisplayed();
 		}
 		return false;
+	}
+	
+	public void clickApplyButton() {
+		comm.clickButton(applyButton);
+	}
+	
+	public void goToFilter(String filterName) {
+//		wait.waitForTextToBePresent(awbNoWithLogo.getFirst(), getAwbFromDatatable());
+		wait.waitForAllElementsVisibility(filtersList);
+		try {
+		for(WebElement name : filtersList) {
+			if(name.getText().equalsIgnoreCase(filterName)) {name.click();}
+//			name.click();
+		}
+		}catch(IllegalArgumentException e) {
+			throw new RuntimeException("Invalid filter name.", e);
+		}
 	}
 	
 	

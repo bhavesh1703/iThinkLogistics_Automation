@@ -119,8 +119,21 @@ public class AllTabTests extends BaseTest{
 //			System.out.println(text);
 //		}
 		System.out.println("Current orders captured are : "+all.getCurrentListOfOrderIDs().size());
+		System.out.println("first Order ID : "+ all.getCurrentListOfOrderIDs().getFirst());
 	}
 	
+	
+	@Test(description = "Verify that the user is able to see the shipping AWB filter and "
+			+ "when click on the filter and check the single and multiple checkbox and click on the Apply button")
+	public void testShippingAWBfilter() {
+		LoginPage loginpage = new LoginPage(driver);
+		loginpage.fillLogin("xylifedemo@gmail.com", "Admin@1234");
+		Dashboard dashboard = loginpage.goToDashboard();
+		AllTab all = dashboard.goToOrderAll();
+		all.clickOnFilterButton();
+		
+		all.shippingAWBfilter();
+	}
 	
 
 }

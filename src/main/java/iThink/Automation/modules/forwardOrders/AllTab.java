@@ -110,5 +110,11 @@ public class AllTab {
 	public List<String> getAllTabAllFilters() {
 		return datatable.getFiltersHeaders();
 	}
+	
+	public void shippingAWBfilter() {
+//		wait.waitForTextToBePresent(null, getFirstAWBFromDatatable())
+		datatable.goToFilter("Shipping AWB");
+		
+	}
 
 }
