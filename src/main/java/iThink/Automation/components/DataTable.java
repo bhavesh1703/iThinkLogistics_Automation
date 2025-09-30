@@ -11,6 +11,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
+import org.testng.log4testng.Logger;
 
 import iThink.Automation.utils.CommonActions;
 import iThink.Automation.utils.WaitUtils;
@@ -82,7 +83,13 @@ public class DataTable {
 	private List<WebElement> orderIDFilterField;	//captures both search icon and inputbox in filter modalbox
 	
 	@FindBy(xpath = "//div[@id='order_id']/div/input")
-	private WebElement orderIDFilter;
+	private WebElement orderIDFilterInputbox;
+	
+	@FindBy(xpath = "//div/div[@data-pc-section='label' and .='Shipping AWB']")
+	private WebElement shippingAWBFilterDropdown;
+	
+	@FindBy(xpath = "//div[@class='p-multiselect-items-wrapper']/ul/li")
+	private List<WebElement> logisticsOptionsInShippingFilters;
 	
 	/** Search the Single AWB in Universal Search
 	 * 
@@ -271,8 +278,9 @@ public class DataTable {
 		return filterHeaders;
 	}
 	
+	/**Enter Order ID in Order ID Filter**/
 	public void setOrderIDFilter(String orderID) {
-		comm.setInput(orderIDFilter, orderID);
+		comm.setInput(orderIDFilterInputbox, orderID);
 	}
 	
 	public boolean isAllSearchIconsAreDisplayed() {
@@ -298,6 +306,42 @@ public class DataTable {
 		}catch(IllegalArgumentException e) {
 			throw new RuntimeException("Invalid filter name.", e);
 		}
+	}
+	
+	public List<String> getShippingAWBOptionsList() {
+		wait.waitForClickable(shippingAWBFilterDropdown);
+		comm.clickButton(shippingAWBFilterDropdown);
+		wait.waitForAllElementsVisibility(logisticsOptionsInShippingFilters);
+		List<String> allLogistics = new ArrayList<>();
+		for(WebElement logistics : logisticsOptionsInShippingFilters) {
+			String name = logistics.getAttribute("aria-label").trim();
+			allLogistics.add(name);
+		}
+		return allLogistics;
+	}
+	
+	/** Select single logistic from Shippping AWB Filter **/
+	public void selectLogisticsInShippingAWBFilter(String logisticsName) {
+		comm.clickButton(shippingAWBFilterDropdown);
+		String xpath = String.format("//li[@class='p-multiselect-item']//div[contains(text(),'%s')]/preceding-sibling::div",logisticsName);
+		WebElement checkbox = wait.waitForVisibility(By.xpath(xpath));
+		if(!checkbox.isSelected()) {
+			checkbox.click();
+		}
+	}
+	
+	public List<String> getSelectedLogistics() {
+		wait.waitForAllElementsVisibility(logisticsOptionsInShippingFilters);
+		List<String> selectedLogistics = new ArrayList<>();
+		for(WebElement logistic : logisticsOptionsInShippingFilters) {
+			if((logistic.isSelected()) && logistic.getAttribute("aria-selected").equalsIgnoreCase("true")) {
+				String selected = logistic.getText().trim();
+				selectedLogistics.add(selected);
+			} else {
+				return null;
+			}	
+		}
+		return selectedLogistics;
 	}
 	
 	

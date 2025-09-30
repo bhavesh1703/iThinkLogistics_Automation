@@ -111,10 +111,10 @@ public class AllTab {
 		return datatable.getFiltersHeaders();
 	}
 	
-	public void shippingAWBfilter() {
+	public void shippingAWBfilter(String logisticsName) {
 //		wait.waitForTextToBePresent(null, getFirstAWBFromDatatable())
 		datatable.goToFilter("Shipping AWB");
-		
+		datatable.selectLogisticsInShippingAWBFilter(logisticsName);
 	}
 
 }

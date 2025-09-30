@@ -31,4 +31,4 @@ test-output/
 *.swo
 
 # Local config
-config.properties
+# config.properties

@@ -132,7 +132,7 @@ public class AllTabTests extends BaseTest{
 		AllTab all = dashboard.goToOrderAll();
 		all.clickOnFilterButton();
 		
-		all.shippingAWBfilter();
+		all.shippingAWBfilter("ElasticRun");
 	}
 	
 
