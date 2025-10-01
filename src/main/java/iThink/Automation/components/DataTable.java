@@ -3,6 +3,8 @@ package iThink.Automation.components;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
@@ -11,7 +13,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
-import org.testng.log4testng.Logger;
+import org.openqa.selenium.support.ui.Select;
 
 import iThink.Automation.utils.CommonActions;
 import iThink.Automation.utils.WaitUtils;
@@ -22,6 +24,7 @@ public class DataTable {
 	private WaitUtils wait;
 	private CommonActions comm;
 	private Actions action;
+	private static final Logger logger = LogManager.getLogger(DataTable.class);
 	
 	public DataTable(WebDriver driver) {
 		this.driver = driver;
@@ -50,13 +53,14 @@ public class DataTable {
 	private List<WebElement> awbNoWithLogo;
 	
 	@FindBy(xpath = "//table/tbody/tr/td[@class='order_id data-table-header']/div/div/div")
-	private List<WebElement> orderIDText;
+	private List<WebElement> orderIDText;	//All OrderID's on Datatable.
 	
 	@FindBy(xpath = "//div[@class='datepicker-outer']")
 	private WebElement pageDateFilter;
 	
 	@FindBy(xpath = "//div/p")
 	private List<WebElement> dateFilterOptions;
+
 	
 	@FindBy(xpath = "//span[@class='filters nest-hub-max-inner-filter']")
 	private WebElement filtersButton;
@@ -91,6 +95,9 @@ public class DataTable {
 	@FindBy(xpath = "//div[@class='p-multiselect-items-wrapper']/ul/li")
 	private List<WebElement> logisticsOptionsInShippingFilters;
 	
+//	@FindBy(xpath = "//div[@class='datepicker-outer']")	//Date Picker on
+//	private WebElement datePickerElement;
+//	
 	/** Search the Single AWB in Universal Search
 	 * 
 	 * @param AWB Number
@@ -173,6 +180,12 @@ public class DataTable {
 //		}
 	}
 	
+	/** Wait For Loading Order ID displayed on Datatable
+	 * @return List of WebElement of Order IDs**/
+	public List<WebElement> waitForLoadOrderList() {
+		return wait.waitForAllElementsVisibility(orderIDText);
+	}
+	
 	public List<String> getOrderIDList() {
 		wait.waitForAllElementsVisibility(orderIDText);
 		List<String> orderIDList = new ArrayList<>();
@@ -198,11 +211,14 @@ public class DataTable {
 	/*** Get List of Date Options 
 	 * @return  List of All Date Options in Date Filter displayed on page**/
 	public List<String> getDateOptions() {
-		wait.waitForAllElementsVisibility(By.xpath("//div/p"));	//this method throws stale element exeception
+//		wait.waitForAllElementsVisibility(By.xpath("//div/p"));	//this method throws stale element exeception
+		List<WebElement> options = driver.findElements(By.xpath("//div[@role='dialog']//div/div/p"));
 		List<String> dateOptions = new ArrayList<>();
 		try {
-			for(WebElement option : dateFilterOptions) {
+//			for(WebElement option : dateFilterOptions) {
+			for(WebElement option : options) {
 				String text = option.getText().trim();
+				if(!text.isEmpty() && option.isDisplayed())
 				dateOptions.add(text);
 			}
 		} catch(Exception e) {
@@ -213,13 +229,57 @@ public class DataTable {
 	
 	/*** Get the Selected Date Option in Date Filter**/
 	public String getSelectedDateOption() {
-		wait.waitForAllElementsVisibility(dateFilterOptions);
-		for(WebElement option : dateFilterOptions) {
-			String selectedOption = option.getAttribute("class");
+//		wait.waitForAllElementsVisibility(dateFilterOptions);
+		List<WebElement> options = driver.findElements(By.xpath("//div[@role='dialog']//div/div/p"));
+//		wait.waitForAllElementsVisibility(options);
+//		for(WebElement option : dateFilterOptions) {
+			for(WebElement option : options) {
+			String selectedOption = option.getDomAttribute("class");
 			if(selectedOption.contains("m-0 text-sm text-black dark:text-white")) {
 				return option.getText().trim();
 			}
 		} return "Any Date is not selected.";
+	}
+	
+	public void selectDateFilterOptionOnPage(String dateOption) {
+		List<WebElement> options = driver.findElements(By.xpath("//div[@role='dialog']//div/div/p"));
+		for(WebElement option : options) {
+			if(option.getText().trim().equalsIgnoreCase(dateOption)) {
+				option.click();
+				logger.info(dateOption + " is selected.");
+			}else {
+				logger.warn("Invalid Date Option");
+			}
+		}
+		
+	}
+	
+	public void selectYearOption(String year) {
+		WebElement yearDropdown = wait.waitForElementToBePresent(By.xpath("//select"));
+		Select select = new Select(yearDropdown);
+		select.selectByValue(year);
+	}
+	
+	/**click on from Month dropdown in Custom Range**/
+	private void selectFromMonth() {
+		By fromMonthLocator = (By.xpath("//body/div[@role='dialog']/div[@class='p-overlaypanel-content']"
+				+ "/div[@class='block xl:flex items-start justify-between gap-0 h-full']/div[@class='border-l dark:border-l-input-border-color main-dt-picker-div-border']"
+				+ "/div[@class='block xl:flex items-start justify-start relative divide-y divide-x-0 lg:divide-x lg:divide-y-0 dark:divide-input-border-color']"
+				+ "/div[1]/div[1]/div[1]"));
+		wait.waitForElementToBePresent(fromMonthLocator);
+		WebElement fromMonth = driver.findElement(fromMonthLocator);
+		fromMonth.click();
+	}
+	
+	/**click on to Month dropdown in Custom Range**/
+	private void selectToMonth() {
+		By toMonthLocator = (By.xpath("//body/div[@role='dialog']/div[@class='p-overlaypanel-content']"
+				+ "/div[@class='block xl:flex items-start justify-between gap-0 h-full']/div[@class='border-l dark:border-l-input-border-color main-dt-picker-div-border']"
+				+ "/div[@class='block xl:flex items-start justify-start relative divide-y divide-x-0 lg:divide-x lg:divide-y-0 dark:divide-input-border-color']"
+				+ "/div[2]/div[1]/div[1]"));
+		wait.waitForElementToBePresent(toMonthLocator);
+		WebElement toMonth = driver.findElement(toMonthLocator);
+		toMonth.click();
 	}
 	
 	public boolean isFilterButtonDisplayed() {
@@ -297,6 +357,7 @@ public class DataTable {
 	
 	public void goToFilter(String filterName) {
 //		wait.waitForTextToBePresent(awbNoWithLogo.getFirst(), getAwbFromDatatable());
+		waitForLoadOrderList();
 		wait.waitForAllElementsVisibility(filtersList);
 		try {
 		for(WebElement name : filtersList) {
@@ -322,27 +383,38 @@ public class DataTable {
 	
 	/** Select single logistic from Shippping AWB Filter **/
 	public void selectLogisticsInShippingAWBFilter(String logisticsName) {
+		wait.waitForVisibility(shippingAWBFilterDropdown);
 		comm.clickButton(shippingAWBFilterDropdown);
 		String xpath = String.format("//li[@class='p-multiselect-item']//div[contains(text(),'%s')]/preceding-sibling::div",logisticsName);
 		WebElement checkbox = wait.waitForVisibility(By.xpath(xpath));
 		if(!checkbox.isSelected()) {
 			checkbox.click();
 		}
+		wait.sleep(10);
 	}
 	
-	public List<String> getSelectedLogistics() {
+	public List<String> getSelectedLogistics() {	//Need to check this method.
 		wait.waitForAllElementsVisibility(logisticsOptionsInShippingFilters);
 		List<String> selectedLogistics = new ArrayList<>();
-		for(WebElement logistic : logisticsOptionsInShippingFilters) {
-			if((logistic.isSelected()) && logistic.getAttribute("aria-selected").equalsIgnoreCase("true")) {
-				String selected = logistic.getText().trim();
+		
+		List<WebElement> logistics = driver.findElements(By.xpath("//div[@class='p-multiselect-items-wrapper']/ul/li"));
+		
+		for(WebElement logistic : logistics) {
+			wait.waitForAttributeToBe(logistic, "aria-selected", "true");
+			
+			String ariaSelected = logistic.getDomAttribute("aria-selected");
+			if("true".equalsIgnoreCase(ariaSelected) && logistic.isSelected()) {
+				String selected = comm.getElementText(logistic);
 				selectedLogistics.add(selected);
-			} else {
-				return null;
-			}	
+			}
 		}
 		return selectedLogistics;
 	}
+	
+//	public void clickDatePickerOnPage() {
+//		wait.waitForElementToBePresent(By.xpath("//div[@class='datepicker-outer']"));
+//		comm.clickButton(datePickerElement);
+//	}
 	
 	
 }

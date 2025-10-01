@@ -50,9 +50,7 @@ public class LoginPageTests extends BaseTest{
 			Assert.assertEquals(loginpage.getPasswordFieldError(), passwordError, "Test : "+testCase+ " failed!");
 		}
 		
-		//Tommorrow Task -
-		//1. Change the field validations with switch case, change the column name
-		//2. Add the Screenshot Utils and take screenshot of error messages
+		
 	
 	}
 	

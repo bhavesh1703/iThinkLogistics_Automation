@@ -8,6 +8,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 
 import iThink.Automation.components.DataTable;
 import iThink.Automation.pages.Dashboard;
@@ -55,11 +56,16 @@ public class AllTab {
 		throw new IllegalStateException("Unexpected state: Neither rows found nor 'No Record Found' displayed.");
 	}
 	
-	public List<String> getDateOptionsOnPage() {
+	public List<String> getDateOptionsOnPage() {	
 		datatable.clickPageDateFilter();
-		logger.info("getting all options of Date filter/");
-		wait.sleep(3);
+		logger.info("getting all options of Date filter...");
+//		wait.sleep(3);
+//		wait.waitForAllElementsVisibility(By.xpath("//div[@role='dialog']//div/div/p"));
 		return datatable.getDateOptions();
+	}
+	
+	public void selectDateOptionOnPage(String dateOption) {
+		datatable.selectDateFilterOptionOnPage(dateOption);
 	}
 	
 	public String getSelectedDateOnPage() {
@@ -111,10 +117,21 @@ public class AllTab {
 		return datatable.getFiltersHeaders();
 	}
 	
-	public void shippingAWBfilter(String logisticsName) {
+	public void shippingAWBfilter(String logisticsName) {	//need to check.
 //		wait.waitForTextToBePresent(null, getFirstAWBFromDatatable())
+		datatable.waitForLoadOrderList();
 		datatable.goToFilter("Shipping AWB");
 		datatable.selectLogisticsInShippingAWBFilter(logisticsName);
+		
 	}
+	
+	public List<String> getSelectedLogistic() {	//Need to check.
+		return datatable.getSelectedLogistics();
+	}
+	
+//	public void DateFilterOnPage() {
+//		datatable.clickDatePickerOnPage();
+//		
+//	}
 
 }

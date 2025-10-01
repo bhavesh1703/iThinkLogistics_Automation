@@ -6,7 +6,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.PageFactory;
 
-import iThink.Automation.base.BasePage;
+//import iThink.Automation.base.BasePage;
 
 public class CommonActions {
 	
@@ -31,6 +31,7 @@ public class CommonActions {
 	
 	public void navigateTo(String relativeUrl) {
 		String fullUrl = ConfigReader.getProperty("baseUrl") + relativeUrl;
+//		String fullUrl = "https://my.ithinklogistics.net/v4/order/all";
 		driver.get(fullUrl);
 	}
 	

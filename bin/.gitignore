@@ -1,0 +1,34 @@
+# Maven target directory
+/target/
+
+# Eclipse / IntelliJ IDEA project files
+.classpath
+.project
+.settings/
+.idea/
+*.iml
+
+# Logs
+*.log
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Generated files
+*.class
+
+
+# Test output
+test-output/
+
+# IntelliJ and VS Code workspace
+.vscode/
+
+# Temporary files
+*.tmp
+*.swp
+*.swo
+
+# Local config
+config.properties

@@ -8,7 +8,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
-import iThink.Automation.base.BasePage;
+//import iThink.Automation.base.BasePage;
 import iThink.Automation.utils.CommonActions;
 import iThink.Automation.utils.WaitUtils;
 

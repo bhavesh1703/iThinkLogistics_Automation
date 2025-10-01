@@ -15,13 +15,14 @@ import iThink.Automation.utils.DriverFactory;
 public class BaseTest {
 
 	protected WebDriver driver;
-	private static final Logger logger = LogManager.getLogger(BasePage.class);
+	private static final Logger logger = LogManager.getLogger(BaseTest.class);
 
 	@BeforeMethod
 	public void setup() {
 		// Load the browser from config file and initate it from DriverFactory class
 		logger.info("Setting up the browser...");
 		String browser = ConfigReader.getProperty("browser");
+//		String browser = "chrome";
 		driver = DriverFactory.initDriver(browser);
 
 		// Browser basic setup
@@ -29,6 +30,7 @@ public class BaseTest {
 		driver.manage().window().maximize();
 		driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
 		driver.get(ConfigReader.getProperty("baseUrl"));
+//		driver.get("https://my.ithinklogistics.net");
 		driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(7));
 	}
 	

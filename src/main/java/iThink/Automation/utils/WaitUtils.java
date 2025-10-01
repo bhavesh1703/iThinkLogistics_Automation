@@ -76,10 +76,22 @@ public class WaitUtils {
 	}
 	
 	public void waitForSkeletonToDisappear() {
-		By skeletonLocator = By.cssSelector("div.p-skeleton.p-component.rounded-md");
-		
+		By skeletonLocator = By.cssSelector("div.p-skeleton.p-component.rounded-md");	
 		
 	}
+	
+	public void waitForAttributeToBe(WebElement element, String attributeName,String attributeValue) {
+		wait.until(ExpectedConditions.domAttributeToBe(element, attributeName, attributeName));
+	}
+	
+	public void waitForPropertyToBe(WebElement element, String attributeName, String attributeValue) {
+		wait.until(ExpectedConditions.domPropertyToBe(element, attributeName, attributeValue));
+	}
+	
+//	public void waitForPropertyToBe() {
+//		wait.until(ExpectedConditions.dom)
+//	}
+	
 	public void sleep(long seconds) {
 		try {
 			Thread.sleep(Duration.ofSeconds(seconds));

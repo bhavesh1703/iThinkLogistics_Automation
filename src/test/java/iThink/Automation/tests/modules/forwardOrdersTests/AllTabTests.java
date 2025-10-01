@@ -133,6 +133,47 @@ public class AllTabTests extends BaseTest{
 		all.clickOnFilterButton();
 		
 		all.shippingAWBfilter("ElasticRun");
+		
+		if(!all.getSelectedLogistic().isEmpty()) {
+			for(String text : all.getSelectedLogistic()) {
+				System.out.println(text);
+			}
+		} else {
+			System.out.println("No logistic is selected.");
+		}
+//		for(String text : all.getSelectedLogistic()) {
+//			System.out.println(text);
+//		}
+	}
+	
+	//Test Cases
+	@Test(description = "Test Case no.1")
+	public void testCustomRange() {
+		LoginPage loginpage = new LoginPage(driver);
+		loginpage.fillLogin("xylifedemo@gmail.com", "Admin@1234");
+		Dashboard dashboard = loginpage.goToDashboard();
+		AllTab all = dashboard.goToOrderAll();
+		
+		List<String> expectedDateOptions = Arrays.asList("Today", "Yesterday", "Last 7 Days", "Last 30 Days", "This Month", 
+				"Last Month", "Custom Range");
+		
+//		for(String text : all.getDateOptionsOnPage()) {
+//			System.out.println(text);
+////			if(all.getDateOptionsOnPage().size()==0) {
+////				break;
+////			}
+//		}
+		
+		List<String> actualDateOptions = all.getDateOptionsOnPage();
+		
+		System.out.println("Expected : "+ expectedDateOptions);
+		System.out.println("Actual : "+ actualDateOptions);
+		
+		all.selectDateOptionOnPage("Custom Range");
+		
+		Assert.assertEquals(actualDateOptions, expectedDateOptions, "Actual Date Options are not matched with Expected Date Options");
+//		Assert.assertEquals(all.getDateOptionsOnPage(), "Last 30 Days", "Last 30 Days is not selected");
+//		Assert.assertTrue(all.isDefaultSelectedDateIsLast30Days(), "30 days option not selected");
 	}
 	
 

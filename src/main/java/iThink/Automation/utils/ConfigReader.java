@@ -11,6 +11,7 @@ public class ConfigReader {
 	static {
 		try {
 			FileInputStream fis = new FileInputStream("src/main/resources/config.properties");
+//			FileInputStream fis = new FileInputStream(ConfigReader.getProperty("testdataPath"));
 			prop = new Properties();
 			prop.load(fis);
 		} catch (IOException e) {
