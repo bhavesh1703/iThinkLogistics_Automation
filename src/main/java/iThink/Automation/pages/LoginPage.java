@@ -27,13 +27,13 @@ public class LoginPage {
 		
 	}
 	
-	@FindBy(id = "login_username")
+	@FindBy(name = "email")
 	private WebElement usernameInputbox;
 	
-	@FindBy(id = "password")
+	@FindBy(name = "password")
 	private WebElement passwordInputbox;
 	
-	@FindBy(xpath = "//button[@class='submit-button']/div")
+	@FindBy(xpath = "//button/div[contains(text(),'Log')]")
 	private WebElement loginButton;
 	
 	@FindBy(xpath = "//a[contains(@href, 'forgot')]/div")

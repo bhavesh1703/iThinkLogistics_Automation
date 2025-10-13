@@ -10,11 +10,13 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import iThink.Automation.utils.ConfigReader;
+import iThink.Automation.utils.DevToolsManager;
 import iThink.Automation.utils.DriverFactory;
 
 public class BaseTest {
 
 	protected WebDriver driver;
+	protected DevToolsManager network;
 	private static final Logger logger = LogManager.getLogger(BaseTest.class);
 
 	@BeforeMethod
@@ -32,6 +34,10 @@ public class BaseTest {
 		driver.get(ConfigReader.getProperty("baseUrl"));
 //		driver.get("https://my.ithinklogistics.net");
 		driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(7));
+		
+//		network = new DevToolsManager(driver);
+//		network.startCapture();
+//		logger.info("Network capture started...");
 	}
 	
 //	@Test

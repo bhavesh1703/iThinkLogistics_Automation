@@ -15,8 +15,8 @@ public class ExcelUtils {
 	
 	public static Object[][] getTestData(String sheetName) {
 		try {
-//			FileInputStream fis = new FileInputStream(ConfigReader.getProperty("testdataPath")+"/Login_Data.xlsx");
-			FileInputStream fis = new FileInputStream("C:\\Users\\bhara\\git\\iThinkLogistics_Automation\\src\\test\\resources\\testdata\\Login_Data.xlsx");
+			FileInputStream fis = new FileInputStream(ConfigReader.getProperty("testdataPath")+"/Login_Data.xlsx");
+//			FileInputStream fis = new FileInputStream("C:\\Users\\bhara\\git\\iThinkLogistics_Automation\\src\\test\\resources\\testdata\\Login_Data.xlsx");
 			workbook = new XSSFWorkbook(fis);
 			Sheet sheet = workbook.getSheet(sheetName);
 			

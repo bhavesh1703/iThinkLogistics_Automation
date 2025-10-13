@@ -2,8 +2,10 @@ package iThink.Automation.utils;
 
 import java.time.Duration;
 
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.PageFactory;
 
 //import iThink.Automation.base.BasePage;
@@ -12,11 +14,13 @@ public class CommonActions {
 	
 	private WebDriver driver;
 	private WaitUtils wait;
+	private Actions action;
 	
 	
 	public CommonActions(WebDriver driver) {	
 		this.driver = driver;
 		this.wait = new WaitUtils(driver);
+		this.action = new Actions(driver);
 		PageFactory.initElements(driver, this);
 		
 	}
@@ -79,6 +83,10 @@ public class CommonActions {
 	    } catch (Exception e) {
 	        return false;
 	    }
+	}
+	
+	public void clickEnterButton() {
+		action.sendKeys(Keys.ENTER).perform();
 	}
 
 

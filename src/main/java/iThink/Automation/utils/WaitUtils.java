@@ -4,9 +4,11 @@ import java.time.Duration;
 import java.util.List;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.FluentWait;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 public class WaitUtils {
@@ -88,10 +90,24 @@ public class WaitUtils {
 		wait.until(ExpectedConditions.domPropertyToBe(element, attributeName, attributeValue));
 	}
 	
-//	public void waitForPropertyToBe() {
-//		wait.until(ExpectedConditions.dom)
-//	}
 	
+	public WebElement waitForElementClickable(By locator, int timeoutInSec, int pollMillis) {
+		 return new FluentWait<>(driver)
+	                .withTimeout(Duration.ofSeconds(timeoutInSec))
+	                .pollingEvery(Duration.ofMillis(pollMillis))
+	                .ignoring(StaleElementReferenceException.class)
+	                .until(drv -> {
+	                    WebElement el = drv.findElement(locator);
+	                    return (el.isDisplayed() && el.isEnabled()) ? el : null;
+	                });
+			
+	}
+	
+	public boolean waitForInvisibilityOfElementByLocator(By locator) {
+		WebElement element = driver.findElement(locator);
+		return wait.until(ExpectedConditions.invisibilityOf(element));
+		
+	}
 	public void sleep(long seconds) {
 		try {
 			Thread.sleep(Duration.ofSeconds(seconds));
