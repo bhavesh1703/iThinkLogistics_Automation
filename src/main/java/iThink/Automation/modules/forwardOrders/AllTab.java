@@ -1,6 +1,7 @@
 package iThink.Automation.modules.forwardOrders;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -14,6 +15,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 
 import iThink.Automation.components.DataTable;
 import iThink.Automation.components.SavedFilters;
+import iThink.Automation.components.WebTable;
 import iThink.Automation.pages.Dashboard;
 import iThink.Automation.utils.CommonActions;
 import iThink.Automation.utils.DevToolsManager;
@@ -26,6 +28,8 @@ public class AllTab {
 	private CommonActions comm;
 	private DataTable datatable;
 	private SavedFilters filtersModalbox;
+	private DevToolsManager devtools;
+	private WebTable webtable;
 	private static final Logger logger = LogManager.getLogger(AllTab.class);
 
 	public AllTab(WebDriver driver) {
@@ -34,6 +38,8 @@ public class AllTab {
 		this.comm = new CommonActions(driver);
 		this.datatable = new DataTable(driver);
 		this.filtersModalbox = new SavedFilters(driver);
+		this.devtools = new DevToolsManager(driver);
+		this.webtable = new WebTable(driver);
 		PageFactory.initElements(driver, this);
 	}
 //	
@@ -105,10 +111,10 @@ public class AllTab {
 //		wait.sleep(5);
 //		
 //		datatable.clickDateRangeApplyButton();
-		datatable.selectDateFilterOptionOnPage("Custom Range");
+//		datatable.selectDateFilterOptionOnPage("Custom Range");
 		wait.waitForAllElementsVisibility(By.xpath("//select"));
 		datatable.selectCustomRangeDateOption(fromDate, toDate);
-		datatable.clickApplyFilterButton();
+//		datatable.clickApplyFilterButton();
 
 	}
 
@@ -194,9 +200,14 @@ public class AllTab {
 		wait.sleep(3);
 		datatable.clickOnFiltersButton();
 		datatable.setOrderIDFilter(orderID);
+		devtools.startCapture();
 		datatable.clickApplyFilterButton();
+		devtools.stopCapture();
 		wait.sleep(3);
 		logger.info("Order Id Filter applied successfully.!");
+		
+//		Optional<String> countStr = devtools.getJSONFieldFromResponse("order/forward/get/count", "count");
+//		countStr.ifPresent(c -> System.out.println("Count value: "+ c));
 		List<WebElement> liList = driver.findElements(By.xpath("//div[@class='block']/div/div"));
 
 		if (!liList.isEmpty()) {
@@ -221,6 +232,18 @@ public class AllTab {
 		return false;
 	}
 	
+	public String getAPICountAfterFilter() {
+		Optional<String> apiCount = devtools.getJSONFieldFromResponse("order/forward/get/count", "count");
+		
+		if(apiCount.isPresent()) {
+			logger.info("API Count of: {}", apiCount.get());
+			return apiCount.get();
+		} else {
+			logger.warn("API count not found in response!");
+			return "";
+		}
+	}
+	
 	
 	public boolean searchInvalidOrderID(String invalidOrderID) {
 		wait.sleep(3);
@@ -241,8 +264,10 @@ public class AllTab {
 	
 	public boolean riskFilter(String riskType) {
 		datatable.setRiskFilter(riskType);
+		devtools.startCapture();
 		datatable.clickApplyFilterButton();
-		wait.sleep(4);
+		devtools.stopCapture();
+		wait.sleep(2);
 		
 		List<WebElement> liList = driver.findElements(By.xpath("//div[@class='block']/div/div"));
 		
@@ -315,7 +340,11 @@ public class AllTab {
 	}
 	
 	public void clickApplyFilterButtonInAllTab() {
+		devtools.startCapture();
 		datatable.clickApplyFilterButton();
+		devtools.stopCapture();
+		
+		devtools.printAPIResponseStatus("forward/get/count");
 	}
 	
 	public String getToastMessageInAllTab() {
@@ -341,7 +370,7 @@ public class AllTab {
 	}
 	
 	public List<String> getListOfLiOnDatatable() {
-		if(datatable.getListOfCurrentFilterLi().isEmpty()) {
+		if(!datatable.getListOfCurrentFilterLi().isEmpty()) {
 		return datatable.getListOfCurrentFilterLi();
 	} else {
 		return null;
@@ -349,5 +378,19 @@ public class AllTab {
 	}
 	}
  	
+	public boolean isUpdateButtonDisplayed() {
+		return datatable.isUpdateButtonDisplayed();
+	}
 	
+	public void clickOnExportOptions() {
+		datatable.clickOnExportOptionsButton();
+	}
+	
+	public void clickOnExportButton() {
+		datatable.clickOnExportButton();
+	}
+	
+	public void getCellClasses() {
+		webtable.getClassNameOfEachCell();
+	}
 }

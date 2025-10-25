@@ -46,7 +46,7 @@ public class Dashboard{
 	public void load() {
 		logger.info("Waiting for Dashboard to load...");
 		wait.waitForPageLoads(10);
-		wait.waitForVisibility(By.xpath("//div[@class='d-inline-block gray-800']"));
+		wait.waitForVisibility(By.xpath("//div[@class='dash-full-content-title helvetica-medium']"));
 		logger.info("Dashboard loads successfully.");		
 	}
 	

@@ -4,12 +4,14 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import org.testng.Assert;
 import org.testng.annotations.*;
 import org.testng.log4testng.Logger;
 
 import iThink.Automation.base.BaseTest;
+import iThink.Automation.components.WebTable;
 import iThink.Automation.modules.forwardOrders.AllTab;
 import iThink.Automation.pages.Dashboard;
 import iThink.Automation.pages.LoginPage;
@@ -142,6 +144,22 @@ public class AllTabTests extends BaseTest{
 		Assert.assertTrue(all.searchInvalidOrderID("ABc-123"), "No Record found not displayed");
 	}
 	
+	@Test
+	public void testDateOptions() {
+		LoginPage loginpage = new LoginPage(driver);
+		loginpage.fillLogin("xylifedemo@gmail.com", "Admin@1234");
+		Dashboard dashboard = loginpage.goToDashboard();
+		AllTab all = dashboard.goToOrderAll();
+		
+		List<String> expectedDateOptions = Arrays.asList("Today", "Yesterday", "Last 7 Days", "Last 30 Days", "This Month", 
+				"Last Month", "Custom Range");
+		
+		List<String> actualDateOptions = all.getDateOptionsOnPage();
+		
+		Assert.assertEquals(actualDateOptions, expectedDateOptions, "Actual Date Options are not matched with Expected Date Options");
+
+	}
+	
 	//Test Cases
 	@Test(description = "Test Case no.1 | Validate Custom Range in Date filter.")
 	public void testCustomRange() {
@@ -153,22 +171,19 @@ public class AllTabTests extends BaseTest{
 		List<String> expectedDateOptions = Arrays.asList("Today", "Yesterday", "Last 7 Days", "Last 30 Days", "This Month", 
 				"Last Month", "Custom Range");
 		
-//		for(String text : all.getDateOptionsOnPage()) {
-//			System.out.println(text);
-////			if(all.getDateOptionsOnPage().size()==0) {
-////				break;
-////			}
-//		}
 		
 		List<String> actualDateOptions = all.getDateOptionsOnPage();
 		
-		System.out.println("Expected : "+ expectedDateOptions);
-		System.out.println("Actual : "+ actualDateOptions);
+//		System.out.println("Expected : "+ expectedDateOptions);
+//		System.out.println("Actual : "+ actualDateOptions);
 		
-//		all.selectDateOptionOnPage("Custom Range");
+		all.selectDateOptionOnPage("Custom Range");
 //		all.selectCustomRange("15","2", "Sep, 2025", "Oct, 2025", "This Year");
 //		all.selectCustomRange("15-Sep-2025:2-Oct-2025");
-		all.selectCustomRange("15-Jan-2023", "2-Feb-2023");
+		
+		//Selecting custom range with different combinations---
+//		all.selectCustomRange("1-Oct-2025", "23-Oct-2025");	//current year same month
+		all.selectCustomRange("21-Jun-2024", "21-May-2025");
 		System.out.println("The Selected Range is - "+all.getSelectedCustomRange());
 		
 		Assert.assertEquals(actualDateOptions, expectedDateOptions, "Actual Date Options are not matched with Expected Date Options");
@@ -177,13 +192,24 @@ public class AllTabTests extends BaseTest{
 	}	//need to check this test
 	
 	@Test(description = "Test Case no. 2  | Order id filter apply and No Recorde displayed.")
-	public void testSearchOrderIDFilter() {
+	public void testSearchValidOrderIDFilter() {
 		LoginPage loginpage = new LoginPage(driver);
 		loginpage.fillLogin("xylifedemo@gmail.com", "Admin@1234");
 		Dashboard dashboard = loginpage.goToDashboard();
 		AllTab all = dashboard.goToOrderAll();
 
 		Assert.assertTrue(all.searchValidOrderID(), "Order ID not found!");
+		Assert.assertEquals(all.getAPICountAfterFilter(), "1");;
+
+	}
+	
+	@Test
+	public void testSearchInvalidOrderIDFilter() {
+		LoginPage loginpage = new LoginPage(driver);
+		loginpage.fillLogin("xylifedemo@gmail.com", "Admin@1234");
+		Dashboard dashboard = loginpage.goToDashboard();
+		AllTab all = dashboard.goToOrderAll();
+
 		Assert.assertTrue(all.searchInvalidOrderID("ABc-123"), "No Record found not displayed");
 	}
 	
@@ -194,27 +220,18 @@ public class AllTabTests extends BaseTest{
 		Dashboard dashboard = loginpage.goToDashboard();
 		AllTab all = dashboard.goToOrderAll();
 		
-//		network.startCapture();
+		all.riskFilter("Medium Risk");
+//		Assert.assertEquals(all.getAPICountAfterFilter(), "1");
+		String apiCount = all.getAPICountAfterFilter();
+		String uiCount = all.getAllTabCurrentPagination().split(" ")[0];
+		System.out.println(apiCount);
+		System.out.println(uiCount);
+		Assert.assertTrue(apiCount.contains(uiCount));
 		
-		all.riskFilter("High Risk");
-		try {
-			Thread.sleep(Duration.ofSeconds(2));
-		} catch (InterruptedException e) {
-			
-			e.printStackTrace();
-		}
-		
-//		network.stopCapture();
-		System.out.println(all.getAllTabCurrentPagination());
-		
-		boolean called = network.wasAPICalled("/api/v1/order/forward/get/count");
-		System.out.println("Was API called : "+ called);
-		
-		network.printAPIResponseStatus("/api/v1/order/forward/get/count");
-		
-		network.getResponseBody("/api/v1/order/forward/get/count").ifPresent(body -> {
-			System.out.println("Api Response Body : " + body);
-		});
+//		all.riskFilter("Low Risk");
+//		System.out.println(apiCount);
+//		System.out.println(uiCount);
+//		Assert.assertTrue(apiCount.contains(uiCount));
 	}
 	
 	@Test(description = "Test Case no. 4 | Amount filter - Select Range condition. ")
@@ -313,7 +330,7 @@ public class AllTabTests extends BaseTest{
 		Dashboard dashboard = loginpage.goToDashboard();
 		AllTab all = dashboard.goToOrderAll();
 		
-		all.selectSavedFilterByName("LRisk");
+		all.selectSavedFilterByName("MRisk");
 		
 		String appliedFilterName = all.getAppliedFilterName();
 		System.out.println(appliedFilterName);
@@ -324,7 +341,51 @@ public class AllTabTests extends BaseTest{
 		else {
 			System.out.println("Filter : '" +appliedFilterName + "' is applied.");
 		}
-			
+		
+		System.out.println("The total entries founds are : " +all.getAllTabCurrentPagination());
+		System.out.println(all.getListOfLiOnDatatable());	
+		
+		Assert.assertTrue(all.isUpdateButtonDisplayed());
+	}
+	
+	@Test
+	public void testOrderIDWithAPICount() {
+		LoginPage loginpage = new LoginPage(driver);
+		loginpage.fillLogin("xylifedemo@gmail.com", "Admin@1234");
+		Dashboard dashboard = loginpage.goToDashboard();
+		AllTab all = dashboard.goToOrderAll();
+		
+		all.searchValidOrderID();
+		
+		System.out.println(all.getAllTabCurrentPagination());
+		System.out.println("The Count getting in API: " + all.getAPICountAfterFilter());
+		
+//		System.out.println(all.getAllTabsActiveColumns());
+//		all.clickOnExportOptions();
+//		all.clickOnExportButton();
+	}
+	
+	@Test
+	public void testExport() {
+		LoginPage loginpage = new LoginPage(driver);
+		loginpage.fillLogin("xylifedemo@gmail.com", "Admin@1234");
+		Dashboard dashboard = loginpage.goToDashboard();
+		AllTab all = dashboard.goToOrderAll();
+		
+//		all.searchValidOrderID();
+		
+		all.getCellClasses();
+		
+		WebTable webtable = new WebTable(driver);
+		List<Map<String, String>> uiTable = webtable.getTableData();
+		
+		for(Map<String, String> row : uiTable) {
+			System.out.println(row);
+		}
+		
+//		System.out.println(all.getAllTabsActiveColumns());
+//		all.clickOnExportOptions();
+//		all.clickOnExportButton();
 	}
 	
 

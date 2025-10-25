@@ -124,6 +124,13 @@ public class DataTable {
 	
 	@FindBy(xpath = "//div[@class='block']//div/div")
 	private List<WebElement> filterLiOnDatatable;
+	
+	private By updateButtonLocator = By.xpath("//button[contains(@class,'save-update-filter')]");
+	
+	@FindBy(xpath = "//div[contains(@class,'export')]")
+	private WebElement exportOptionsButtonLocator;
+	
+	private By exportButtonLocator = By.xpath("//div/div/p[text()='Export']");
 
 //	@FindBy(xpath = "//div[@class='datepicker-outer']")	//Date Picker on
 //	private WebElement datePickerElement;
@@ -272,6 +279,7 @@ public class DataTable {
 	public List<String> getOrderIDList() {
 		wait.waitForAllElementsVisibility(orderIDText);
 		List<String> orderIDList = new ArrayList<>();
+//		if(!isNoRecordDisplayed()) {
 		try {
 			for (WebElement id : orderIDText) {
 				String text = comm.getElementText(id);
@@ -281,7 +289,11 @@ public class DataTable {
 		} catch (Exception e) {
 			throw new RuntimeException("Order ID not captured.", e);
 		}
-	}
+//	}else {
+//		logger.info("There is No Record is displayed.");
+//		return orderIDList;
+//	}
+		}
 
 	// pending to add to checkpoint for data displayed or not after loading the
 	// page.
@@ -333,6 +345,7 @@ public class DataTable {
 	public void selectDateFilterOptionOnPage(String dateOption) {
 		List<WebElement> options = driver.findElements(By.xpath("//div[@role='dialog']//div/div/p"));
 		for (WebElement option : options) {
+			logger.info(option.getText());
 			if (option.getText().trim().equalsIgnoreCase(dateOption)) {
 				option.click();
 				logger.info(dateOption + " is selected.");
@@ -351,22 +364,23 @@ public class DataTable {
 
 	/** click on from Month dropdown in Custom Range **/
 	public void selectFromMonth(String fromMonth) {
-		By fromMonthLocator = (By.xpath("//body/div[@role='dialog']/div[@class='p-overlaypanel-content']"
-				+ "/div[@class='block xl:flex items-start justify-between gap-0 h-full']/div[@class='border-l dark:border-l-input-border-color main-dt-picker-div-border']"
-				+ "/div[@class='block xl:flex items-start justify-start relative divide-y divide-x-0 lg:divide-x lg:divide-y-0 dark:divide-input-border-color']"
-				+ "/div[1]/div[1]/div[1]"));
-		wait.waitForElementToBePresent(fromMonthLocator);
-		WebElement fromMonthDropdown = driver.findElement(fromMonthLocator);
-		fromMonthDropdown.click();
+//		By fromMonthLocator = (By.xpath("//body/div[@role='dialog']/div[@class='p-overlaypanel-content']"
+//				+ "/div[@class='block xl:flex items-start justify-between gap-0 h-full']/div[@class='border-l dark:border-l-input-border-color main-dt-picker-div-border']"
+//				+ "/div[@class='block xl:flex items-start justify-start relative divide-y divide-x-0 lg:divide-x lg:divide-y-0 dark:divide-input-border-color']"
+//				+ "/div[1]/div[1]/div[1]"));
+//		wait.waitForElementToBePresent(fromMonthLocator);
+//		WebElement fromMonthDropdown = driver.findElement(fromMonthLocator);
+//		fromMonthDropdown.click();
 		logger.info("Selecting the given 'from Month'...");
 
 		List<WebElement> months = getCurrentMonths();
 
-		Optional<WebElement> match = months.stream().filter(option -> option.getText().equalsIgnoreCase(fromMonth))
-				.findFirst();
-
+//		Optional<WebElement> match = months.stream().filter(option -> option.getText().equalsIgnoreCase(fromMonth))
+//				.findFirst();
+		Optional<WebElement> match = months.stream().filter(option -> option.getText().contains(fromMonth)).findFirst();
+	
 		match.ifPresent(WebElement::click);
-
+		
 		if (match.isPresent()) {
 			match.get().click();
 			logger.info("Month '" + fromMonth + "' Selected successfully!");
@@ -385,24 +399,50 @@ public class DataTable {
 		wait.waitForElementClickable(toMonthLocator, 10, 10);
 		WebElement toMonthDropdown = driver.findElement(toMonthLocator);
 		toMonthDropdown.click();
-
+		wait.sleep(1);
+		
 		// Select to Month
-		logger.info("Selecting the given 'To Month'...");
-
 		List<WebElement> months = getCurrentMonths();
-
-		Optional<WebElement> match = months.stream().filter(option -> option.getText().equalsIgnoreCase(toMonth))
+		
+		if(months.isEmpty()) {
+			logger.info("months list is empty");
+			throw new RuntimeException("Month dropdown options are empty – could not load months list.");
+		}	
+//		} else {
+//			for(WebElement month : months ) {
+//				logger.info("Current month list in To side of calender '" +month.getText().trim()+"' .");
+//			}
+//		}
+		List<String> availableMonths = months.stream().map(m -> m.getText().trim()).toList();
+		logger.info("Available months in To calendar: " + availableMonths);
+		
+		 String normalizedInput = toMonth.trim().toLowerCase();
+//		logger.info("Selecting the '" + toMonth + "' To Month'...");
+//		Optional<WebElement> match = months.stream().filter(option -> option.getText().equalsIgnoreCase(toMonth))
+//				.findFirst();
+//		Optional<WebElement> match = months.stream().filter(option -> option.getText().contains(toMonth)).findFirst();
+//		match.ifPresent(WebElement::click);
+		 	 
+//
+//		if (match.isPresent()) {
+//			wait.waitForElementClickable(toMonthLocator, 10, 10);
+//			match.get().click();
+//
+//			logger.info("Month " + toMonth + " Selected successfully!");
+//		} else {
+//			throw new RuntimeException("Given month : " + toMonth + " is not present");
+//		}
+		 
+		Optional<WebElement> match = months.stream()
+				.filter(option -> option.getText().trim().toLowerCase().startsWith(normalizedInput.substring(0, 3)))
 				.findFirst();
-		match.ifPresent(WebElement::click);
-
-		if (match.isPresent()) {
-			wait.waitForElementClickable(toMonthLocator, 10, 10);
+		
+		if(match.isPresent()) {
 			match.get().click();
-
-			logger.info("Month " + toMonth + " Selected successfully!");
+			logger.info("Month '"+ toMonth + "' is selected successfully.");
 		} else {
-			throw new RuntimeException("Given month : " + toMonth + " is not present");
-		}
+	        throw new RuntimeException("Given month: '" + toMonth + "' not found in available list: " + availableMonths);
+	    }
 
 	}
 
@@ -478,13 +518,27 @@ public class DataTable {
 	 * @return List of String of month Dropdown.
 	 */
 	public List<String> getCurrentMonthList() {
-		List<WebElement> months = driver.findElements(
-				By.xpath("//div[@class='p-dropdown-items-wrapper w-[14rem]']/ul[@id='baseDropdown_list']/li/div/div"));
+		WebElement fromMonthDropdown = driver.findElement(By.xpath("//div[@class='p-2 flex-1'][1]//div[@id='baseDropdown']"));
+		fromMonthDropdown.click();
+		wait.sleep(3);
+		
+		By monthOptionsLocator = By.xpath("//div[@class='p-dropdown-items-wrapper w-[14rem]']/ul[@id='baseDropdown_list']/li/div/div");
+		wait.waitForAllElementsVisibility(monthOptionsLocator);
+		
+		List<WebElement> months = driver.findElements(monthOptionsLocator);
 		List<String> actualMonths = new ArrayList<String>();
 		for (WebElement month : months) {
-			String text = comm.getElementText(month);
-			actualMonths.add(text);
+			String text = month.getText().trim();
+			
+			if(text.isEmpty()) {
+				text = month.getDomProperty("innerText");
+			}
+			if(text == null || text.isEmpty()) {
+				text = (String)((JavascriptExecutor)driver).executeScript("return arguments[0].textContent;", month);
+			}
+			actualMonths.add(text.trim());
 		}
+		 logger.info("Months available: " + actualMonths);
 		return actualMonths;
 	}
 
@@ -541,11 +595,11 @@ public class DataTable {
 			selectYearOption(String.valueOf(fromDate.getYear()));
 //				selectFromMonth(fromDate.getMonth().name());
 			getCurrentMonthList();
-			System.out.println(getCurrentMonthList());
+//			System.out.println(getCurrentMonthList());
 			selectFromMonth(fromDate.getMonth().getDisplayName(TextStyle.SHORT, Locale.ENGLISH));
 			selectFromDay(String.valueOf(fromDate.getDayOfMonth()));
 //				selectToMonth(toDate.getMonth().name());
-			System.out.println(getCurrentMonthList());
+//			System.out.println(getCurrentMonthList());
 			selectFromMonth(fromDate.getMonth().getDisplayName(TextStyle.SHORT, Locale.ENGLISH));
 			selectToDay(String.valueOf(toDate.getDayOfMonth()));
 			break;
@@ -570,14 +624,15 @@ public class DataTable {
 	}
 
 	private void selectRangeInSingleCalendar(String calendarSide, LocalDate fromDate, LocalDate toDate) {
-		String fromDay = String.valueOf(fromDate.getDayOfMonth());
-		String toDay = String.valueOf(toDate.getDayOfMonth());
-		String monthName = fromDate.getMonth().name().substring(0, 1)
-				+ fromDate.getMonth().name().substring(1).toLowerCase();
+//		String fromDay = String.valueOf(fromDate.getDayOfMonth());
+//		String toDay = String.valueOf(toDate.getDayOfMonth());
+//		String monthName = fromDate.getMonth().name().substring(0, 1)
+//				+ fromDate.getMonth().name().substring(1).toLowerCase();
 
 		// Locate calendar side
 		By activeDaysLocator;
 
+		//select the calendar side
 		if (calendarSide.equalsIgnoreCase("from")) {
 			activeDaysLocator = By.xpath(
 					"//div[@class='p-2 flex-1']/div[contains(@class,'left-side-date-picker')]//div[contains(@class,'dp__cell_inner dp__pointer')]");
@@ -587,7 +642,9 @@ public class DataTable {
 		}
 
 		// Select month (since single calendar)
-		logger.info("Selecting month '" + monthName + "' in " + calendarSide + " calendar...");
+		String monthName = fromDate.format(DateTimeFormatter.ofPattern("MMMM", Locale.ENGLISH));
+		logger.info("Selecting month '" + monthName + "' in '" + calendarSide + "' calendar...");
+		
 		if (calendarSide.equalsIgnoreCase("from")) {
 			selectFromMonth(monthName);
 		} else {
@@ -595,23 +652,42 @@ public class DataTable {
 		}
 
 		// Select range of days
-		logger.info("Selecting day range: " + fromDay + " - " + toDay);
+//		logger.info("Selecting day range: " + fromDay + " - " + toDay);
 		wait.waitForAllElementsVisibility(activeDaysLocator);
 		List<WebElement> days = driver.findElements(activeDaysLocator);
+		
+		String fromDay = String.valueOf(fromDate.getDayOfMonth());
+		String toDay = String.valueOf(toDate.getDayOfMonth());
 
-		boolean fromFound = false;
-		for (WebElement dayElement : days) {
-			String text = dayElement.getText().trim();
-			if (text.equals(fromDay)) {
+//		boolean fromFound = false;
+//		for (WebElement dayElement : days) {
+//			String text = dayElement.getText().trim();
+//			if (text.equals(fromDay)) {
+//				dayElement.click();
+//				fromFound = true;
+//				logger.info("From day '" + fromDay + "' selected.");
+//			} else if (fromFound && text.equals(toDay)) {
+//				dayElement.click();
+//				logger.info("To day '" + toDay + "' selected.");
+//				break;
+//			}
+//		}
+		for(WebElement dayElement : days) {
+			if(dayElement.getText().trim().equals(fromDay)) {
 				dayElement.click();
-				fromFound = true;
-				logger.info("From day '" + fromDay + "' selected.");
-			} else if (fromFound && text.equals(toDay)) {
-				dayElement.click();
-				logger.info("To day '" + toDay + "' selected.");
-				break;
+				logger.info("From day '" + fromDay + "' selected in " + calendarSide + " calendar.");
+	            break;
 			}
 		}
+		
+//			 if (calendarSide.equalsIgnoreCase("to")) {
+        for (WebElement dayElement : days) {
+            if (dayElement.getText().trim().equals(toDay)) {
+                dayElement.click();
+                logger.info("To day '" + toDay + "' selected in " + calendarSide + " calendar.");
+                break;
+            }
+        }
 	}
 
 	public boolean isFilterButtonDisplayed() {
@@ -764,7 +840,7 @@ public class DataTable {
 //		comm.clickButton(datePickerElement);
 //	}
 
-	public void setRiskFilter(String riskType) {
+	public void setRiskFilter(String riskTypes) {
 		wait.sleep(3);
 		clickOnFiltersButton();
 		wait.sleep(3);
@@ -775,25 +851,36 @@ public class DataTable {
 				throw new RuntimeException("Risk filter is not available on this tab.");
 			}
 			goToFilter("Risk");
-			switch (riskType.trim().toLowerCase()) {
+			
+			String[] risks = riskTypes.split(",");
+			for(String risk : risks) {
+				String type = risk.trim().toLowerCase();
+				By locator;
+//			switch (riskType.trim().toLowerCase()) {
+			switch (type) {
 			case "na":
-				driver.findElement(By.id("0_order_risk")).click();
+//				driver.findElement(By.id("0_order_risk")).click();
+				locator = By.id("0_order_risk");
 				break;
 			case "low risk":
-				driver.findElement(By.id("1_order_risk")).click();
+//				driver.findElement(By.id("1_order_risk")).click();
+				locator = By.id("1_order_risk");
 				break;
 			case "medium risk":
-				driver.findElement(By.id("2_order_risk")).click();
+//				driver.findElement(By.id("2_order_risk")).click();
+				locator = By.id("2_order_risk");
 				break;
 			case "high risk":
-				driver.findElement(By.id("3_order_risk")).click();
+//				driver.findElement(By.id("3_order_risk")).click();
+				locator = By.id("3_order_risk");
 				break;
 			default:
-				throw new IllegalArgumentException("Given risk type '" + riskType + "' is not present");
+				throw new IllegalArgumentException("Given risk type '" + risk + "' is not present");
 			}
-			logger.info("Risk filter '" + riskType + "' applied successfully.");
+			logger.info("Risk filter '" + riskTypes + "' selected successfully.");
 
-		} catch (NoSuchElementException e) {
+		} 
+		}catch (NoSuchElementException e) {
 			throw new RuntimeException("Risk filter in not displayed in this tab.", e);
 		}
 
@@ -815,7 +902,7 @@ public class DataTable {
 		String count = paginationCount.getText().trim();
 		String[] entries = count.split("of");
 		String entryCount = entries[1];
-		return entryCount;
+		return entryCount.trim();
 		
 		} else {
 			return "No Entries found.";
@@ -952,19 +1039,58 @@ public class DataTable {
 		return filtername.getText().trim();
 	}
 	
+	/**Get list of current Li displayed on datatable**/
 	public List<String> getListOfCurrentFilterLi() {
 		List<String> liValue = new ArrayList<>();
 		try {
 		wait.waitForAllElementsVisibility(filterLiOnDatatable);
 		for(WebElement li : filterLiOnDatatable) {
 			String liText = li.getText().trim();
+			System.out.println("current li displayed are: " + liText);
 			liValue.add(liText);
+			
 		}
 			return liValue;
 		} catch(Exception e) {
 			throw new RuntimeException("No Li are displayed.");
 		}
 		
+	}
+	
+	public boolean isUpdateButtonDisplayed() {
+		WebElement updateButton =driver.findElement(By.xpath("//button[contains(@class,'save-update-filter')]"));
+		wait.waitForVisibility(updateButton);
+		return updateButton.isDisplayed();
+	}
+	
+	public void clickUpdateButton() {
+		if (isUpdateButtonDisplayed()) {
+			logger.info("Clicking on Update button...");
+			driver.findElement(updateButtonLocator).click();
+		} else {
+			logger.info("Update button is not displayed.");
+		}
+	}
+	
+	public boolean isExportOptionsButtonDisplayed() {
+		WebElement exportOptionButton = wait.waitForVisibility(exportOptionsButtonLocator);
+		return exportOptionButton.isDisplayed();
+	}
+	
+	public void clickOnExportOptionsButton() {
+		if (isExportOptionsButtonDisplayed()) {
+			wait.sleep(2);
+			logger.info("Clicking on Export Options button...");
+			comm.clickButton(exportOptionsButtonLocator);
+		} else {
+			logger.info("Export Options button is not displayed.");
+		}
+	}
+	
+	public void clickOnExportButton() {
+		WebElement exportButton = driver.findElement(exportButtonLocator);
+		wait.waitForVisibility(exportButton);
+		comm.clickButton(exportButton);
 	}
 }
 
