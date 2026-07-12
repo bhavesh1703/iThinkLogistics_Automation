@@ -8,6 +8,12 @@
 .idea/
 *.iml
 
+#Build directories
+bin/
+
+# Temporary Office files
+~$*
+
 # Logs
 *.log
 
@@ -17,7 +23,6 @@ Thumbs.db
 
 # Generated files
 *.class
-
 
 # Test output
 test-output/
