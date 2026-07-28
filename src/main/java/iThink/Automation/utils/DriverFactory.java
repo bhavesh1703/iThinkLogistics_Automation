@@ -10,7 +10,7 @@ import io.github.bonigarcia.wdm.WebDriverManager;
 
 public class DriverFactory {
 	
-	protected static WebDriver driver;
+	private static WebDriver driver;
 	
 	public static WebDriver initDriver(String browser) {
 		
@@ -30,7 +30,7 @@ public class DriverFactory {
 				ChromeOptions options = new ChromeOptions();
 				options.addArguments("--headless=new");
 				options.addArguments("--disable-gpu");
-				options.addArguments("--window-size=1980,1080");
+				options.addArguments("--window-size=1920,1080");
 				driver = new ChromeDriver(options);
 				break;
 				

@@ -24,7 +24,7 @@ public class LoginPageTests extends BaseTest{
 		
 		if(expectedResult.contains("Successful")) {
 			//Validate Success
-			Assert.assertTrue(loginpage.isLoginSucessful(), "Dashboard Not Displayed. Test : " + testCase+ " - failed!");
+			Assert.assertTrue(loginpage.isLoginSuccessful(), "Dashboard Not Displayed. Test : " + testCase+ " - failed!");
 			Dashboard dashboard = loginpage.goToDashboard();
 			Assert.assertTrue(dashboard.isWelcomeDisplayed());
 		}

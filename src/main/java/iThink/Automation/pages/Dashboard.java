@@ -45,7 +45,6 @@ public class Dashboard{
 	
 	public void load() {
 		logger.info("Waiting for Dashboard to load...");
-		wait.waitForPageLoads(10);
 		wait.waitForVisibility(By.xpath("//div[@class='d-inline-block gray-800']"));
 		logger.info("Dashboard loads successfully.");		
 	}
@@ -54,16 +53,9 @@ public class Dashboard{
 		load();
 		logger.info("Navigating to All tab of Domestic- View Order...");
 		comm.navigateTo(PageURLs.ALL);
-		wait.waitForPageLoads(10);
 		WebElement header = wait.waitForVisibility(By.xpath("//div[@class='page-header-section mb-3']/div/div/div/span"));
 		logger.info("Navigated to All tab successfully.");
 		return new AllTab(driver);
 	}
-	
-	
-	
-	
-	
-
 
 }

@@ -11,16 +11,23 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class ExcelUtils {
 	
-	private static Workbook workbook;
+//	private static Workbook workbook;
 	
 	public static Object[][] getTestData(String sheetName) {
-		try {
-//			FileInputStream fis = new FileInputStream(ConfigReader.getProperty("testdataPath")+"/Login_Data.xlsx");
-			FileInputStream fis = new FileInputStream("C:\\Users\\bhara\\git\\iThinkLogistics_Automation\\src\\test\\resources\\testdata\\Login_Data.xlsx");
-			workbook = new XSSFWorkbook(fis);
+		try(FileInputStream fis = new FileInputStream(ConfigReader.getProperty("testDataPath"));
+			Workbook workbook = new XSSFWorkbook(fis)) {
 			Sheet sheet = workbook.getSheet(sheetName);
-			
+
+			if(sheet == null) {
+				throw new RuntimeException("Sheet '" + sheetName + "' not found in Excel file");
+			}
+
 			int rowCount = sheet.getPhysicalNumberOfRows();
+
+			if(rowCount <=1) {
+				throw new RuntimeException("No test data found in sheet '"+ sheetName +"'.");
+			}
+
 			int colCount = sheet.getRow(0).getLastCellNum();
 			
 			//skip header and Test Case ID
@@ -30,22 +37,12 @@ public class ExcelUtils {
 				Row row = sheet.getRow(i);
 				for(int j = 1; j < colCount; j++) {
 					Cell cell = row.getCell(j);
-					data[i - 1][j - 1] = cell != null ? cell.toString().trim() : "";
+					data[i - 1][j - 1] = (cell != null) ? cell.toString().trim() : "";
 				}
 			}
 			return data;
 		} catch (IOException e) {
-			throw new RuntimeException("Error Reading Excel file. ", e);
+			throw new RuntimeException("Error Reading Excel file.", e);
 		}
 	}
-	
-	 public void close() {
-	        try {
-	            if (workbook != null ) {
-	                workbook.close();
-	            }
-	        } catch (IOException e) {
-	            e.printStackTrace();
-	        }
-	    }
 }

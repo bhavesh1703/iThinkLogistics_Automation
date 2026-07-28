@@ -11,9 +11,8 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 public class WaitUtils {
 
-	private WebDriver driver;
-	private WebDriverWait wait;
-//	private long defaultTimeout;
+	private final WebDriver driver;
+	private final WebDriverWait wait;
 
 	public WaitUtils(WebDriver driver, long timeoutInSeconds) {
 		this.driver = driver;
@@ -32,7 +31,7 @@ public class WaitUtils {
 		return wait.until(ExpectedConditions.titleIs(title));
 	}
 
-	/** wait until element is appear in DOM **/
+	/** wait until element is appeared in DOM **/
 	public WebElement waitForElementToBePresent(By locator) {
 		return wait.until(ExpectedConditions.presenceOfElementLocated(locator));
 	}
@@ -66,32 +65,14 @@ public class WaitUtils {
 		return wait.until(ExpectedConditions.textToBePresentInElementValue(element, text));
 	}
 	
-	public void waitForPageLoads(long timeout) {
-		driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(timeout));
+	public void waitForAttributeToBe(WebElement element, String attributeName,String attributeValue) {
+		wait.until(ExpectedConditions.domAttributeToBe(element, attributeName, attributeValue));
 	}
 
-	public boolean isSkeletonDisplayed() {
-		return wait.until(ExpectedConditions.invisibilityOfElementLocated(By.xpath
-				("//div[@class='p-datatable-loading-rows']//div[1]//div[5]//div[1]")));
+	public void waitForPropertyToBe(WebElement element, String propertyName, String propertyValue) {
+		wait.until(ExpectedConditions.domPropertyToBe(element, propertyName, propertyValue));
 	}
-	
-	public void waitForSkeletonToDisappear() {
-		By skeletonLocator = By.cssSelector("div.p-skeleton.p-component.rounded-md");	
-		
-	}
-	
-	public void waitForAttributeToBe(WebElement element, String attributeName,String attributeValue) {
-		wait.until(ExpectedConditions.domAttributeToBe(element, attributeName, attributeName));
-	}
-	
-	public void waitForPropertyToBe(WebElement element, String attributeName, String attributeValue) {
-		wait.until(ExpectedConditions.domPropertyToBe(element, attributeName, attributeValue));
-	}
-	
-//	public void waitForPropertyToBe() {
-//		wait.until(ExpectedConditions.dom)
-//	}
-	
+
 	public void sleep(long seconds) {
 		try {
 			Thread.sleep(Duration.ofSeconds(seconds));

@@ -60,7 +60,6 @@ public class LoginPage {
 	
 	public void load() {
 		logger.info("Waiting for LoginPage to load");
-		wait.waitForPageLoads(10);
 		wait.waitForVisibility(By.xpath("//button[@class='submit-button']/div"));
 		logger.info("LoginPage loads successfully...");		
 	}
@@ -107,7 +106,7 @@ public class LoginPage {
 		return comm.getElementText(invalidCredsNotifyError);
 	}
 	
-	public boolean isLoginSucessful() {
+	public boolean isLoginSuccessful() {
 		WebElement welcome = wait.waitForVisibility(By.xpath("//div[@class='d-inline-block gray-800']"));
 		return (wait.waitForTitleToBe("ITL - Itl Dashboard") && welcome.isDisplayed());
 		
